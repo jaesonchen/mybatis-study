@@ -1,0 +1,93 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.asiainfo.mybatis.xml.dao.UserDao">
+
+    <resultMap id="userResultMap" type="User">
+        <id property="userId" column="user_id" />
+        <result property="userName" column="user_name" />
+        <association property="card" javaType="Card">
+            <id property="cardId" column="card_id" />
+            <result property="cardAgent" column="card_agent" />
+            <result property="authDate" column="auth_date" />
+        </association>
+    </resultMap>
+
+	<resultMap id="userCourseResultMap" type="User" extends="userResultMap">
+		<collection property="courses" javaType="ArrayList" ofType="Course">
+            <id property="courseId" column="course_id" />
+            <result property="courseName" column="course_name" />
+		</collection>
+	</resultMap>
+	
+    <sql id="selectColumnList" >
+        u.user_id,
+        u.user_name,
+        u.card_id,
+        k.card_agent,
+        k.auth_date,
+        c.course_id,
+        c.course_name
+    </sql>
+	   
+    <select id="findAll" resultMap="userResultMap" databaseId="mysql">
+        select 
+            u.user_id,
+	        u.user_name,
+	        u.card_id,
+	        k.card_agent,
+	        k.auth_date
+        from user u 
+        left join card k on u.card_id=k.card_id 
+    </select>
+
+	<select id="findById" parameterType="long" resultMap="userCourseResultMap" databaseId="mysql">
+        select 
+        <include refid="selectColumnList" />
+        from user u 
+        left join card k on u.card_id=k.card_id 
+        left join user_course uc on u.user_id=uc.user_id
+        left join course c on uc.course_id=c.course_id
+		where u.user_id=#{userId}
+	</select>
+	
+    <insert id="saveCard" parameterType="Card">
+        insert into card(card_id, card_agent, auth_date)
+        values (#{cardId}, #{cardAgent}, #{authDate})
+    </insert>
+    
+	<insert id="save" parameterType="User" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+	    insert into user
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	    	user_name, 
+	    	<if test="card != null">
+	    		card_id, 
+	    	</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+			#{userName},
+	    	<if test="card != null">
+	    		#{card.cardId},
+	    	</if>
+	    </trim>
+	</insert>
+	
+	<update id="update" parameterType="User">
+	    update user set 
+	    	user_name=#{userName}
+	    where user_id=#{userId}
+	</update>
+	
+    <delete id="delete" parameterType="long">
+        delete from user where user_id=#{userId}
+    </delete>
+
+    <delete id="deleteByName" parameterType="java.lang.String">
+        delete from user where user_name like CONCAT(#{userName},'%')
+    </delete>
+    	
+	<delete id="deleteCard" parameterType="java.lang.String">
+	    delete from card where card_id=#{cardId}
+	</delete>
+</mapper>

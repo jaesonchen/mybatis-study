@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.asiainfo.mybatis.generator.dao.CardMapper">
+  <resultMap id="BaseResultMap" type="com.asiainfo.mybatis.generator.model.Card">
+    <id column="card_id" jdbcType="VARCHAR" property="cardId" />
+    <result column="card_agent" jdbcType="VARCHAR" property="cardAgent" />
+    <result column="auth_date" jdbcType="TIMESTAMP" property="authDate" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from card
+    where card_id = #{cardId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.asiainfo.mybatis.generator.model.Card">
+    insert into card (card_id, card_agent, auth_date
+      )
+    values (#{cardId,jdbcType=VARCHAR}, #{cardAgent,jdbcType=VARCHAR}, #{authDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.asiainfo.mybatis.generator.model.Card">
+    update card
+    set card_agent = #{cardAgent,jdbcType=VARCHAR},
+      auth_date = #{authDate,jdbcType=TIMESTAMP}
+    where card_id = #{cardId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select card_id, card_agent, auth_date
+    from card
+    where card_id = #{cardId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select card_id, card_agent, auth_date
+    from card
+  </select>
+</mapper>
